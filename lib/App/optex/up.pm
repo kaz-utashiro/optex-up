@@ -141,7 +141,7 @@ it under the same terms as Perl itself.
 
 =cut
 
-use v5.14;
+use v5.16;
 use warnings;
 
 use List::Util qw(max);
