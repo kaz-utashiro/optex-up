@@ -44,7 +44,7 @@
          "requires" : {
             "App::ansicolumn" : "0",
             "App::optex" : "1.00",
-            "Getopt::EX" : "v2.1.6",
+            "Getopt::EX" : "3.02",
             "Getopt::EX::Config" : "1.00",
             "Term::ReadKey" : "0",
             "perl" : "v5.16.0"
