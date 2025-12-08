@@ -1,0 +1,8 @@
+Revision history for Perl extension App-optex-column
+
+{{$NEXT}}
+
+    - Initial release
+    - Provides columnar output with ansicolumn and pager support
+    - Includes App::optex::C as short alias module
+
