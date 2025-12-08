@@ -6,6 +6,10 @@ up - optex module for multi-column paged output
 
     optex -Mup command ...
 
+    optex -Mup -C2 -- command ...
+
+    optex -Mup -S100 -- command ...
+
 # DESCRIPTION
 
 **up** is a module for the **optex** command that pipes the output
@@ -14,17 +18,53 @@ The name comes from the printing term "n-up" (2-up, 3-up, etc.) which
 refers to printing multiple pages on a single sheet.
 
 The module automatically calculates the number of columns based on the
-terminal width (`$COLUMNS`) divided by the column width (default 85
-characters).
+terminal width divided by the pane width (default 85 characters).
 
 The pager command is taken from the `$PAGER` environment variable if
-set, otherwise defaults to `less +Gg`.
+set, otherwise defaults to `less`.  When using `less`, the `+Gg`
+option is automatically appended.
+
+# OPTIONS
+
+Module options must be specified before `--` separator.
+
+- **--pane**=_N_, **-C** _N_
+
+    Set the number of columns (panes) directly.  If specified,
+    **--pane-width** is used only for the ansicolumn command, not for
+    calculating the number of panes.
+
+- **--pane-width**=_N_, **-S** _N_
+
+    Set the pane width in characters.  Default is 85.  The number of panes
+    is calculated by dividing the terminal width by this value.
+
+- **--border-style**=_STYLE_, **--bs**=_STYLE_
+
+    Set the border style for ansicolumn.  Default is `heavy-box`.
+    See [App::ansicolumn](https://metacpan.org/pod/App%3A%3Aansicolumn) for available styles.
+
+- **--pager**=_COMMAND_
+
+    Set the pager command.  Default is `$PAGER` or `less`.
 
 # EXAMPLES
 
 List files in multiple columns with pager:
 
     optex -Mup ls -l
+
+Use 2 columns:
+
+    optex -Mup -C2 -- ls -l
+
+Set pane width to 100:
+
+    optex -Mup -S100 -- ls -l
+
+Use a different border style:
+
+    optex -Mup --bs=round-box -- ls -l
 
 # INSTALL
 

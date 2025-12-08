@@ -12,6 +12,10 @@ up - optex module for multi-column paged output
 
     optex -Mup command ...
 
+    optex -Mup -C2 -- command ...
+
+    optex -Mup -S100 -- command ...
+
 =head1 DESCRIPTION
 
 B<up> is a module for the B<optex> command that pipes the output
@@ -20,17 +24,57 @@ The name comes from the printing term "n-up" (2-up, 3-up, etc.) which
 refers to printing multiple pages on a single sheet.
 
 The module automatically calculates the number of columns based on the
-terminal width (C<$COLUMNS>) divided by the column width (default 85
-characters).
+terminal width divided by the pane width (default 85 characters).
 
 The pager command is taken from the C<$PAGER> environment variable if
-set, otherwise defaults to C<less +Gg>.
+set, otherwise defaults to C<less>.  When using C<less>, the C<+Gg>
+option is automatically appended.
+
+=head1 OPTIONS
+
+Module options must be specified before C<--> separator.
+
+=over 4
+
+=item B<--pane>=I<N>, B<-C> I<N>
+
+Set the number of columns (panes) directly.  If specified,
+B<--pane-width> is used only for the ansicolumn command, not for
+calculating the number of panes.
+
+=item B<--pane-width>=I<N>, B<-S> I<N>
+
+Set the pane width in characters.  Default is 85.  The number of panes
+is calculated by dividing the terminal width by this value.
+
+=item B<--border-style>=I<STYLE>, B<--bs>=I<STYLE>
+
+Set the border style for ansicolumn.  Default is C<heavy-box>.
+See L<App::ansicolumn> for available styles.
+
+=item B<--pager>=I<COMMAND>
+
+Set the pager command.  Default is C<$PAGER> or C<less>.
+
+=back
 
 =head1 EXAMPLES
 
 List files in multiple columns with pager:
 
     optex -Mup ls -l
+
+Use 2 columns:
+
+    optex -Mup -C2 -- ls -l
+
+Set pane width to 100:
+
+    optex -Mup -S100 -- ls -l
+
+Use a different border style:
+
+    optex -Mup --bs=round-box -- ls -l
 
 =head1 INSTALL
 
@@ -62,29 +106,42 @@ it under the same terms as Perl itself.
 use v5.14;
 use warnings;
 
-my @PAGER_OPT = (
-    [ qr/\bless\b/ => '+Gg' ],
+use Getopt::EX::Config;
+use Term::ReadKey;
+
+sub term_width {
+    my @size;
+    if (open my $tty, ">", "/dev/tty") {
+        @size = GetTerminalSize $tty, $tty;
+    }
+    $size[0];
+}
+
+my $config = Getopt::EX::Config->new(
+    'pane-width'   => 85,
+    'pane'         => undef,
+    'border-style' => 'heavy-box',
+    'pager'        => $ENV{PAGER} || 'less',
 );
 
-$ENV{UP_PAGER} //= do {
-    my $pager = $ENV{PAGER} // 'less';
-    for (@PAGER_OPT) {
-        my ($re, $opt) = @$_;
-        if ($pager =~ $re) {
-            $pager .= " $opt";
-            last;
-        }
-    }
-    $pager;
-};
+sub finalize {
+    my($mod, $argv) = @_;
+    $config->deal_with($argv, 'pane-width|S=i', 'pane|C=i', 'border-style|bs=s', 'pager=s');
+
+
+    my $width = $config->{'pane-width'};
+    my $cols = $config->{pane} // do {
+        my $term_width = $ENV{COLUMNS} || term_width() || 80;
+        my $c = int($term_width / $width);
+        $c < 1 ? 1 : $c;
+    };
+    my $pager = $config->{pager};
+    $pager .= ' +Gg' if $pager =~ /\bless\b/;
+    my $border_style = $config->{'border-style'};
+
+    my $column = "ansicolumn --bs $border_style --cm BORDER=L13 -DP -C $cols";
+    my $filter = "$column|$pager";
+    $mod->setopt(default => "-Mutil::filter --of='$filter'");
+}
 
 1;
-
-__DATA__
-
-define WIDTH  85
-define COLS   WIDTH/:DUP:1:GE:EXCH:1:IF
-define COLUMN ansicolumn --bs heavy-box --cm BORDER=L13 -DP -C COLS
-define FILTER COLUMN|$ENV{UP_PAGER}
-
-option default -Mutil::filter --of='FILTER'
