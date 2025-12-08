@@ -87,6 +87,14 @@ Disable pager.  Output goes directly to stdout.
 
 =head1 EXAMPLES
 
+    optex -Mup perldoc App::optex::up
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/optex-up/main/images/perldoc.png">
+
+=end html
+
 List files in multiple columns with pager:
 
     optex -Mup ls -l

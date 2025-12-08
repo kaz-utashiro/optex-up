@@ -77,6 +77,12 @@ Module options must be specified before `--` separator.
 
 # EXAMPLES
 
+    optex -Mup perldoc App::optex::up
+
+<div>
+    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/optex-up/main/images/perldoc.png">
+</div>
+
 List files in multiple columns with pager:
 
     optex -Mup ls -l
