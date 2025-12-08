@@ -14,7 +14,7 @@ up - optex module for multi-column paged output
 
     optex -Mup -C2 -- command ...
 
-    optex -Mup -C2R2 -- command ...
+    optex -Mup -G2x2 -- command ...
 
 =head1 DESCRIPTION
 
@@ -28,7 +28,9 @@ terminal width divided by the pane width (default 85 characters).
 
 The pager command is taken from the C<$PAGER> environment variable if
 set, otherwise defaults to C<less>.  When using C<less>, the C<+Gg>
-option is automatically appended.
+option is automatically appended.  This causes C<less> to read all
+input before displaying, which may take time for large output, but
+prevents empty trailing pages from being shown.
 
 =head1 OPTIONS
 
@@ -65,7 +67,8 @@ See L<App::ansicolumn> for available styles.
 =item B<--line-style>=I<STYLE>, B<--ls>=I<STYLE>
 
 Set the line style for ansicolumn.  Available styles are C<none>,
-C<truncate>, C<wrap>, and C<wordwrap>.  Default is C<none>.
+C<truncate>, C<wrap>, and C<wordwrap>.  Default is C<wrap> (inherited
+from ansicolumn's document mode).
 
 =item B<--pager>=I<COMMAND>
 
@@ -102,6 +105,14 @@ Use 2x2 grid (4-up):
 Use a different border style:
 
     optex -Mup --bs=round-box -- ls -l
+
+Output without pager (useful for piping):
+
+    optex -Mup --no-pager -C2 -- ls -l | head
+
+Truncate long lines:
+
+    optex -Mup --ls=truncate -- ps aux
 
 =head1 INSTALL
 
