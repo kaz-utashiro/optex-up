@@ -8,7 +8,7 @@ up - optex module for multi-column paged output
 
     optex -Mup -C2 -- command ...
 
-    optex -Mup -S100 -- command ...
+    optex -Mup -C2R2 -- command ...
 
 # DESCRIPTION
 
@@ -30,14 +30,19 @@ Module options must be specified before `--` separator.
 
 - **--pane**=_N_, **-C** _N_
 
-    Set the number of columns (panes) directly.  If specified,
-    **--pane-width** is used only for the ansicolumn command, not for
-    calculating the number of panes.
+    Set the number of columns (panes) directly.
+
+- **--row**=_N_, **-R** _N_
+
+    Set the number of rows.  The page height is calculated by dividing
+    the terminal height by this value.  Combined with **--pane**, you can
+    create grid layouts like 2x2 (4-up) or 3x2 (6-up).
 
 - **--pane-width**=_N_, **-S** _N_
 
-    Set the pane width in characters.  Default is 85.  The number of panes
-    is calculated by dividing the terminal width by this value.
+    Set the pane width in characters.  Default is 85.  When **--pane** is
+    not specified, the number of panes is calculated by dividing the
+    terminal width by this value.
 
 - **--border-style**=_STYLE_, **--bs**=_STYLE_
 
@@ -61,6 +66,14 @@ Use 2 columns:
 Set pane width to 100:
 
     optex -Mup -S100 -- ls -l
+
+Use 2 rows (upper and lower):
+
+    optex -Mup -R2 -- ls -l
+
+Use 2x2 grid (4-up):
+
+    optex -Mup -C2 -R2 -- ls -l
 
 Use a different border style:
 

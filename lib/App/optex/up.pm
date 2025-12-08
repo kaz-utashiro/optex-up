@@ -14,7 +14,7 @@ up - optex module for multi-column paged output
 
     optex -Mup -C2 -- command ...
 
-    optex -Mup -S100 -- command ...
+    optex -Mup -C2R2 -- command ...
 
 =head1 DESCRIPTION
 
@@ -38,14 +38,19 @@ Module options must be specified before C<--> separator.
 
 =item B<--pane>=I<N>, B<-C> I<N>
 
-Set the number of columns (panes) directly.  If specified,
-B<--pane-width> is used only for the ansicolumn command, not for
-calculating the number of panes.
+Set the number of columns (panes) directly.
+
+=item B<--row>=I<N>, B<-R> I<N>
+
+Set the number of rows.  The page height is calculated by dividing
+the terminal height by this value.  Combined with B<--pane>, you can
+create grid layouts like 2x2 (4-up) or 3x2 (6-up).
 
 =item B<--pane-width>=I<N>, B<-S> I<N>
 
-Set the pane width in characters.  Default is 85.  The number of panes
-is calculated by dividing the terminal width by this value.
+Set the pane width in characters.  Default is 85.  When B<--pane> is
+not specified, the number of panes is calculated by dividing the
+terminal width by this value.
 
 =item B<--border-style>=I<STYLE>, B<--bs>=I<STYLE>
 
@@ -71,6 +76,14 @@ Use 2 columns:
 Set pane width to 100:
 
     optex -Mup -S100 -- ls -l
+
+Use 2 rows (upper and lower):
+
+    optex -Mup -R2 -- ls -l
+
+Use 2x2 grid (4-up):
+
+    optex -Mup -C2 -R2 -- ls -l
 
 Use a different border style:
 
@@ -106,40 +119,46 @@ it under the same terms as Perl itself.
 use v5.14;
 use warnings;
 
+use List::Util qw(max);
 use Getopt::EX::Config;
 use Term::ReadKey;
 
-sub term_width {
+sub term_size {
     my @size;
     if (open my $tty, ">", "/dev/tty") {
         @size = GetTerminalSize $tty, $tty;
     }
-    $size[0];
+    @size;
 }
 
 my $config = Getopt::EX::Config->new(
     'pane-width'   => 85,
     'pane'         => undef,
+    'row'          => undef,
     'border-style' => 'heavy-box',
     'pager'        => $ENV{PAGER} || 'less',
 );
 
 sub finalize {
     my($mod, $argv) = @_;
-    $config->deal_with($argv, 'pane-width|S=i', 'pane|C=i', 'border-style|bs=s', 'pager=s');
+    $config->deal_with($argv,
+        'pane-width|S=i', 'pane|C=i', 'row|R=i',
+        'border-style|bs=s', 'pager=s');
 
+    my($term_width, $term_height) = term_size();
+    $term_width  ||= $ENV{COLUMNS} || 80;
+    $term_height ||= $ENV{LINES}   || 24;
 
-    my $width = $config->{'pane-width'};
-    my $cols = $config->{pane} // do {
-        my $term_width = $ENV{COLUMNS} || term_width() || 80;
-        my $c = int($term_width / $width);
-        $c < 1 ? 1 : $c;
-    };
-    my $pager = $config->{pager};
-    $pager .= ' +Gg' if $pager =~ /\bless\b/;
+    my $pane_width   = $config->{'pane-width'};
+    my $cols         = $config->{pane} // max(1, int($term_width / $pane_width));
+    my $rows         = $config->{row};
+    my $height       = defined $rows ? int(($term_height - 1) / $rows) : undef;
     my $border_style = $config->{'border-style'};
+    my $pager        = $config->{pager};
+    $pager .= ' +Gg' if $pager =~ /\bless\b/;
 
     my $column = "ansicolumn --bs $border_style --cm BORDER=L13 -DP -C $cols";
+    $column .= " --height=$height" if defined $height;
     my $filter = "$column|$pager";
     $mod->setopt(default => "-Mutil::filter --of='$filter'");
 }
