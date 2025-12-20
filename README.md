@@ -67,6 +67,12 @@ Module options must be specified before `--` separator.
     `truncate`, `wrap`, and `wordwrap`.  Default is `wrap` (inherited
     from ansicolumn's document mode).
 
+- **--fold**, **-F**
+
+    Enable fold mode (disable page mode).  In fold mode, the entire
+    content is split evenly across columns without pagination.  Page
+    mode is the default.
+
 - **--pager**=_COMMAND_
 
     Set the pager command.  Default is `$PAGER` or `less`.
@@ -104,6 +110,10 @@ Use 2 rows (upper and lower):
 Use 2x2 grid (4-up):
 
     optex -Mup -G2x2 -- ls -l
+
+Fold mode (no pagination):
+
+    optex -Mup -F -- man perl
 
 Use a different border style:
 

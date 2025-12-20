@@ -75,6 +75,12 @@ Set the line style for ansicolumn.  Available styles are C<none>,
 C<truncate>, C<wrap>, and C<wordwrap>.  Default is C<wrap> (inherited
 from ansicolumn's document mode).
 
+=item B<--fold>, B<-F>
+
+Enable fold mode (disable page mode).  In fold mode, the entire
+content is split evenly across columns without pagination.  Page
+mode is the default.
+
 =item B<--pager>=I<COMMAND>
 
 Set the pager command.  Default is C<$PAGER> or C<less>.
@@ -116,6 +122,10 @@ Use 2 rows (upper and lower):
 Use 2x2 grid (4-up):
 
     optex -Mup -G2x2 -- ls -l
+
+Fold mode (no pagination):
+
+    optex -Mup -F -- man perl
 
 Use a different border style:
 
@@ -179,7 +189,7 @@ my $config = Getopt::EX::Config->new(
     'height'       => undef,
     'border-style' => 'heavy-box',
     'line-style'   => undef,
-    'page'         => 1,
+    'fold'         => undef,
     'pager'        => $ENV{PAGER} || 'less',
     'no-pager'     => undef,
 );
@@ -189,7 +199,7 @@ sub finalize {
     $config->deal_with($argv,
         'grid|G=s', 'pane-width|S=i', 'pane|C=i', 'row|R=i', 'height=i',
         'border-style|bs=s', 'line-style|ls=s',
-        'page|P!', 'pager:s', 'no-pager|nopager');
+        'fold|F', 'pager:s', 'no-pager|nopager');
 
     if (my $grid = $config->{grid}) {
         my($c, $r) = $grid =~ /^(\d+)[x,](\d+)$/
@@ -216,7 +226,7 @@ sub finalize {
     my @ac_opts = ("--bs=$border_style", "--cm=BORDER=L13", "-DBP", "-C$cols");
     push @ac_opts, "--height=$height" if defined $height;
     push @ac_opts, "--ls=$line_style" if defined $line_style;
-    push @ac_opts, "--no-page" if !$config->{page};
+    push @ac_opts, "--no-page" if $config->{fold};
 
     # If command is ansicolumn, apply default options and pager
     if (@$argv && $argv->[0] eq 'ansicolumn') {
