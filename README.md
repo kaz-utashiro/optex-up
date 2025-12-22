@@ -49,9 +49,9 @@ Module options must be specified before `--` separator.
     creates a 2-column, 3-row layout (6-up).  This is equivalent to
     `-C2 -R3`.
 
-- **--height**=_N_
+- **-P** _N_, **--page**=_N_
 
-    Set the page height directly in lines.
+    Set the page height in lines.
 
 - **-S** _N_, **--pane-width**=_N_
 

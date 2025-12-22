@@ -57,9 +57,9 @@ Set the grid layout.  For example, C<--grid=2x3> or C<--grid=2,3>
 creates a 2-column, 3-row layout (6-up).  This is equivalent to
 C<-C2 -R3>.
 
-=item B<--height>=I<N>
+=item B<-P> I<N>, B<--page>=I<N>
 
-Set the page height directly in lines.
+Set the page height in lines.
 
 =item B<-S> I<N>, B<--pane-width>=I<N>
 
@@ -197,7 +197,7 @@ my $config = Getopt::EX::Config->new(
     'pane-width'   => 85,
     'pane'         => undef,
     'row'          => undef,
-    'height'       => undef,
+    'page'         => undef,
     'border-style' => 'heavy-box',
     'line-style'   => undef,
     'fold'         => undef,
@@ -210,7 +210,7 @@ my $config = Getopt::EX::Config->new(
 sub finalize {
     my($mod, $argv) = @_;
     $config->deal_with($argv,
-        'grid|G=s', 'pane-width|S=i', 'pane|C=i', 'row|R=i', 'height=i',
+        'grid|G=s', 'pane-width|S=i', 'pane|C=i', 'row|R=i', 'page|P=i',
         'border-style|bs=s', 'line-style|ls=s',
         'fold|F', 'filename|H!', 'parallel|V!',
         'pager:s', 'no-pager|nopager');
@@ -229,7 +229,7 @@ sub finalize {
     my $pane_width   = $config->{'pane-width'};
     my $cols         = $config->{pane} // max(1, int($term_width / $pane_width));
     my $rows         = $config->{row};
-    my $height       = $config->{height} //
+    my $page         = $config->{page} //
                        (defined $rows ? int(($term_height - 1) / $rows) : undef);
     my $border_style = $config->{'border-style'};
     my $line_style   = $config->{'line-style'};
@@ -238,7 +238,7 @@ sub finalize {
 
     # Build default ansicolumn options
     my @ac_opts = ("-w$term_width", "--bs=$border_style", "--cm=BORDER=L13", "-DBP", "-C$cols");
-    push @ac_opts, "--height=$height" if defined $height;
+    push @ac_opts, "--page=$page" if defined $page;
     push @ac_opts, "--ls=$line_style" if defined $line_style;
     push @ac_opts, "--no-page"  if $config->{fold};
     push @ac_opts, "--filename" if $config->{filename};
