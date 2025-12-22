@@ -2,6 +2,10 @@ Revision history for Perl extension App-optex-up
 
 {{$NEXT}}
 
+1.03 2025-12-22T06:31:53Z
+
+    - Add -H/--filename and -V/--parallel options for ansicolumn
+
 1.02 2025-12-22T02:24:05Z
 
     - Merge stderr to stdout in output filter
