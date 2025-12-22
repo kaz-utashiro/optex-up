@@ -26,6 +26,9 @@ refers to printing multiple pages on a single sheet.
 The module automatically calculates the number of columns based on the
 terminal width divided by the pane width (default 85 characters).
 
+Both stdout and stderr are merged and passed through the filter, so
+error messages are also displayed in the multi-column paged output.
+
 The pager command is taken from the C<$PAGER> environment variable if
 set, otherwise defaults to C<less>.  When using C<less>, C<-F +Gg>
 options are automatically appended.  C<-F> causes C<less> to exit
@@ -235,13 +238,13 @@ sub finalize {
         if ($config->{'no-pager'} || $pager eq '') {
             return;  # No filter needed
         }
-        $mod->setopt(default => "-Mutil::filter --of='$pager'");
+        $mod->setopt(default => "-Mutil::filter --of='$pager' --ef='>&1'");
         return;
     }
 
     my $column = join ' ', 'ansicolumn', @ac_opts;
     my $filter = ($config->{'no-pager'} || $pager eq '') ? $column : "$column|$pager";
-    $mod->setopt(default => "-Mutil::filter --of='$filter'");
+    $mod->setopt(default => "-Mutil::filter --of='$filter' --ef='>&1'");
 }
 
 1;

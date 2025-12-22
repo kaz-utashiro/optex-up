@@ -20,6 +20,9 @@ refers to printing multiple pages on a single sheet.
 The module automatically calculates the number of columns based on the
 terminal width divided by the pane width (default 85 characters).
 
+Both stdout and stderr are merged and passed through the filter, so
+error messages are also displayed in the multi-column paged output.
+
 The pager command is taken from the `$PAGER` environment variable if
 set, otherwise defaults to `less`.  When using `less`, `-F +Gg`
 options are automatically appended.  `-F` causes `less` to exit
