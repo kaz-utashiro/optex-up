@@ -45,7 +45,7 @@
             "App::ansicolumn" : "1.47",
             "App::optex" : "1.04",
             "Getopt::EX" : "3.02",
-            "Getopt::EX::Config" : "1.00",
+            "Getopt::EX::Config" : "1.01",
             "Term::ReadKey" : "0",
             "perl" : "v5.16.0"
          }
